@@ -1,0 +1,23 @@
+{
+  "name": "js-prisma-mysql-getting-started",
+  "version": "1.0.0",
+  "description": "docker-compose up -d",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kjonathante/js-prisma-mysql-getting-started.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kjonathante/js-prisma-mysql-getting-started/issues"
+  },
+  "homepage": "https://github.com/kjonathante/js-prisma-mysql-getting-started#readme",
+  "dependencies": {
+    "prisma-client-lib": "^1.30.1"
+  }
+}
