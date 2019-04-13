@@ -13,3 +13,19 @@ async function main() {
 }
 
 main().catch(e => console.error(e))
+
+/*
+// Fetch single user
+const user = await prisma.user({ id: '__USER_ID__' })
+// Filter user list
+const usersCalledAlice = await prisma.users({
+  where: { name: 'Alice' }
+})
+// Update a user's name
+const updatedUser = await prisma.updateUser({
+  where: { id: '__USER_ID__' },
+  data: { name: 'Bob' }
+})
+// Delete user
+const deletedUser = await prisma.deleteUser({ id: '__USER_ID__' })
+*/
