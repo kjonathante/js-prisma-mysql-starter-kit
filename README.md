@@ -17,3 +17,12 @@ prisma generate
 npm init -y
 npm install --save prisma-client-lib
 
+Change Datamodel
+prisma deploy
+prisma generate 
+
+or
+prisma.yml
+  hooks:
+    post-deploy:
+      - prisma generate
