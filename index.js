@@ -3,13 +3,43 @@ const { prisma } = require('./generated/prisma-client')
 // A `main` function so that we can use async/await
 async function main() {
 
-  // Create a new user called `Alice`
-  const newUser = await prisma.createUser({ name: 'Alice' })
-  console.log(`Created new user: ${newUser.name} (ID: ${newUser.id})`)
+  await prisma.deleteManyCategories({})
+  await prisma.deleteManyArticles({})
+  
+  const category1 = await prisma.createCategory({})
+  console.log(`Created new category: (ID: ${category1.id})`)
 
-  // Read all users from the database and print them to the console
-  const allUsers = await prisma.users()
-  console.log(allUsers)
+  const category2 = await prisma.createCategory({})
+  console.log(`Created new category: (ID: ${category2.id})`)
+
+  const category3 = await prisma.createCategory({})
+  console.log(`Created new category: (ID: ${category3.id})`)
+
+
+  const article1 = await prisma.createArticle({})
+  console.log(`Created new article: (ID: ${article1.id})`)
+
+  await prisma.updateArticle({
+    where: { id: article1.id },
+    data: {
+      categories: { connect: {id : category1.id } }
+    }
+  })
+
+  const article2 = await prisma.createArticle({
+    categories: {
+      connect: [{id: category1.id}, {id: category2.id}, {id: category3.id}]
+    }
+  })
+  console.log(`Created new article: (ID: ${article2.id})`)
+
+  const categoryToArticles = await prisma.category({id: category1.id}).articles()
+  console.log(`\nShowing all articles related to category ${category1.id}`)
+  console.log(categoryToArticles)
+
+  const articleToCategories = await prisma.article({id: article2.id}).categories()
+  console.log(`\nShowing all categories related to article ${article2.id}`)
+  console.log(articleToCategories)
 }
 
 main().catch(e => console.error(e))

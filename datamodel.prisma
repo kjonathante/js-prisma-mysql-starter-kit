@@ -1,4 +1,9 @@
-type User {
+type Article {
   id: ID! @unique
-  name: String!
+  categories: [Category!]!
+}
+
+type Category {
+  id: ID! @unique
+  articles: [Article!]!
 }
