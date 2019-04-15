@@ -14,6 +14,7 @@ export type AtLeastOne<T, U = { [K in keyof T]: Pick<T, K> }> = Partial<T> &
   U[keyof U];
 
 export interface Exists {
+  car: (where?: CarWhereInput) => Promise<boolean>;
   user: (where?: UserWhereInput) => Promise<boolean>;
 }
 
@@ -36,6 +37,29 @@ export interface Prisma {
    * Queries
    */
 
+  car: (where: CarWhereUniqueInput) => CarPromise;
+  cars: (
+    args?: {
+      where?: CarWhereInput;
+      orderBy?: CarOrderByInput;
+      skip?: Int;
+      after?: String;
+      before?: String;
+      first?: Int;
+      last?: Int;
+    }
+  ) => FragmentableArray<Car>;
+  carsConnection: (
+    args?: {
+      where?: CarWhereInput;
+      orderBy?: CarOrderByInput;
+      skip?: Int;
+      after?: String;
+      before?: String;
+      first?: Int;
+      last?: Int;
+    }
+  ) => CarConnectionPromise;
   user: (where: UserWhereUniqueInput) => UserPromise;
   users: (
     args?: {
@@ -65,13 +89,26 @@ export interface Prisma {
    * Mutations
    */
 
+  createCar: (data: CarCreateInput) => CarPromise;
+  updateCar: (
+    args: { data: CarUpdateInput; where: CarWhereUniqueInput }
+  ) => CarPromise;
+  updateManyCars: (
+    args: { data: CarUpdateManyMutationInput; where?: CarWhereInput }
+  ) => BatchPayloadPromise;
+  upsertCar: (
+    args: {
+      where: CarWhereUniqueInput;
+      create: CarCreateInput;
+      update: CarUpdateInput;
+    }
+  ) => CarPromise;
+  deleteCar: (where: CarWhereUniqueInput) => CarPromise;
+  deleteManyCars: (where?: CarWhereInput) => BatchPayloadPromise;
   createUser: (data: UserCreateInput) => UserPromise;
   updateUser: (
     args: { data: UserUpdateInput; where: UserWhereUniqueInput }
   ) => UserPromise;
-  updateManyUsers: (
-    args: { data: UserUpdateManyMutationInput; where?: UserWhereInput }
-  ) => BatchPayloadPromise;
   upsertUser: (
     args: {
       where: UserWhereUniqueInput;
@@ -90,6 +127,9 @@ export interface Prisma {
 }
 
 export interface Subscription {
+  car: (
+    where?: CarSubscriptionWhereInput
+  ) => CarSubscriptionPayloadSubscription;
   user: (
     where?: UserSubscriptionWhereInput
   ) => UserSubscriptionPayloadSubscription;
@@ -103,11 +143,19 @@ export interface ClientConstructor<T> {
  * Types
  */
 
+export type CarOrderByInput =
+  | "id_ASC"
+  | "id_DESC"
+  | "color_ASC"
+  | "color_DESC"
+  | "createdAt_ASC"
+  | "createdAt_DESC"
+  | "updatedAt_ASC"
+  | "updatedAt_DESC";
+
 export type UserOrderByInput =
   | "id_ASC"
   | "id_DESC"
-  | "name_ASC"
-  | "name_DESC"
   | "createdAt_ASC"
   | "createdAt_DESC"
   | "updatedAt_ASC"
@@ -115,9 +163,44 @@ export type UserOrderByInput =
 
 export type MutationType = "CREATED" | "UPDATED" | "DELETED";
 
-export type UserWhereUniqueInput = AtLeastOne<{
+export type CarWhereUniqueInput = AtLeastOne<{
   id: ID_Input;
 }>;
+
+export interface CarWhereInput {
+  id?: ID_Input;
+  id_not?: ID_Input;
+  id_in?: ID_Input[] | ID_Input;
+  id_not_in?: ID_Input[] | ID_Input;
+  id_lt?: ID_Input;
+  id_lte?: ID_Input;
+  id_gt?: ID_Input;
+  id_gte?: ID_Input;
+  id_contains?: ID_Input;
+  id_not_contains?: ID_Input;
+  id_starts_with?: ID_Input;
+  id_not_starts_with?: ID_Input;
+  id_ends_with?: ID_Input;
+  id_not_ends_with?: ID_Input;
+  owner?: UserWhereInput;
+  color?: String;
+  color_not?: String;
+  color_in?: String[] | String;
+  color_not_in?: String[] | String;
+  color_lt?: String;
+  color_lte?: String;
+  color_gt?: String;
+  color_gte?: String;
+  color_contains?: String;
+  color_not_contains?: String;
+  color_starts_with?: String;
+  color_not_starts_with?: String;
+  color_ends_with?: String;
+  color_not_ends_with?: String;
+  AND?: CarWhereInput[] | CarWhereInput;
+  OR?: CarWhereInput[] | CarWhereInput;
+  NOT?: CarWhereInput[] | CarWhereInput;
+}
 
 export interface UserWhereInput {
   id?: ID_Input;
@@ -134,35 +217,80 @@ export interface UserWhereInput {
   id_not_starts_with?: ID_Input;
   id_ends_with?: ID_Input;
   id_not_ends_with?: ID_Input;
-  name?: String;
-  name_not?: String;
-  name_in?: String[] | String;
-  name_not_in?: String[] | String;
-  name_lt?: String;
-  name_lte?: String;
-  name_gt?: String;
-  name_gte?: String;
-  name_contains?: String;
-  name_not_contains?: String;
-  name_starts_with?: String;
-  name_not_starts_with?: String;
-  name_ends_with?: String;
-  name_not_ends_with?: String;
+  car?: CarWhereInput;
   AND?: UserWhereInput[] | UserWhereInput;
   OR?: UserWhereInput[] | UserWhereInput;
   NOT?: UserWhereInput[] | UserWhereInput;
 }
 
+export type UserWhereUniqueInput = AtLeastOne<{
+  id: ID_Input;
+}>;
+
+export interface CarCreateInput {
+  owner: UserCreateOneWithoutCarInput;
+  color: String;
+}
+
+export interface UserCreateOneWithoutCarInput {
+  connect?: UserWhereUniqueInput;
+}
+
+export interface CarUpdateInput {
+  owner?: UserUpdateOneRequiredWithoutCarInput;
+  color?: String;
+}
+
+export interface UserUpdateOneRequiredWithoutCarInput {
+  connect?: UserWhereUniqueInput;
+}
+
+export interface CarUpdateManyMutationInput {
+  color?: String;
+}
+
 export interface UserCreateInput {
-  name: String;
+  car: CarCreateOneWithoutOwnerInput;
+}
+
+export interface CarCreateOneWithoutOwnerInput {
+  create?: CarCreateWithoutOwnerInput;
+  connect?: CarWhereUniqueInput;
+}
+
+export interface CarCreateWithoutOwnerInput {
+  color: String;
 }
 
 export interface UserUpdateInput {
-  name?: String;
+  car?: CarUpdateOneRequiredWithoutOwnerInput;
 }
 
-export interface UserUpdateManyMutationInput {
-  name?: String;
+export interface CarUpdateOneRequiredWithoutOwnerInput {
+  create?: CarCreateWithoutOwnerInput;
+  update?: CarUpdateWithoutOwnerDataInput;
+  upsert?: CarUpsertWithoutOwnerInput;
+  connect?: CarWhereUniqueInput;
+}
+
+export interface CarUpdateWithoutOwnerDataInput {
+  color?: String;
+}
+
+export interface CarUpsertWithoutOwnerInput {
+  update: CarUpdateWithoutOwnerDataInput;
+  create: CarCreateWithoutOwnerInput;
+}
+
+export interface CarSubscriptionWhereInput {
+  mutation_in?: MutationType[] | MutationType;
+  updatedFields_contains?: String;
+  updatedFields_contains_every?: String[] | String;
+  updatedFields_contains_some?: String[] | String;
+  node?: CarWhereInput;
+  AND?: CarSubscriptionWhereInput[] | CarSubscriptionWhereInput;
+  OR?: CarSubscriptionWhereInput[] | CarSubscriptionWhereInput;
+  NOT?: CarSubscriptionWhereInput[] | CarSubscriptionWhereInput;
 }
 
 export interface UserSubscriptionWhereInput {
@@ -180,42 +308,60 @@ export interface NodeNode {
   id: ID_Output;
 }
 
+export interface Car {
+  id: ID_Output;
+  color: String;
+}
+
+export interface CarPromise extends Promise<Car>, Fragmentable {
+  id: () => Promise<ID_Output>;
+  owner: <T = UserPromise>() => T;
+  color: () => Promise<String>;
+}
+
+export interface CarSubscription
+  extends Promise<AsyncIterator<Car>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  owner: <T = UserSubscription>() => T;
+  color: () => Promise<AsyncIterator<String>>;
+}
+
 export interface User {
   id: ID_Output;
-  name: String;
 }
 
 export interface UserPromise extends Promise<User>, Fragmentable {
   id: () => Promise<ID_Output>;
-  name: () => Promise<String>;
+  car: <T = CarPromise>() => T;
 }
 
 export interface UserSubscription
   extends Promise<AsyncIterator<User>>,
     Fragmentable {
   id: () => Promise<AsyncIterator<ID_Output>>;
-  name: () => Promise<AsyncIterator<String>>;
+  car: <T = CarSubscription>() => T;
 }
 
-export interface UserConnection {
+export interface CarConnection {
   pageInfo: PageInfo;
-  edges: UserEdge[];
+  edges: CarEdge[];
 }
 
-export interface UserConnectionPromise
-  extends Promise<UserConnection>,
+export interface CarConnectionPromise
+  extends Promise<CarConnection>,
     Fragmentable {
   pageInfo: <T = PageInfoPromise>() => T;
-  edges: <T = FragmentableArray<UserEdge>>() => T;
-  aggregate: <T = AggregateUserPromise>() => T;
+  edges: <T = FragmentableArray<CarEdge>>() => T;
+  aggregate: <T = AggregateCarPromise>() => T;
 }
 
-export interface UserConnectionSubscription
-  extends Promise<AsyncIterator<UserConnection>>,
+export interface CarConnectionSubscription
+  extends Promise<AsyncIterator<CarConnection>>,
     Fragmentable {
   pageInfo: <T = PageInfoSubscription>() => T;
-  edges: <T = Promise<AsyncIterator<UserEdgeSubscription>>>() => T;
-  aggregate: <T = AggregateUserSubscription>() => T;
+  edges: <T = Promise<AsyncIterator<CarEdgeSubscription>>>() => T;
+  aggregate: <T = AggregateCarSubscription>() => T;
 }
 
 export interface PageInfo {
@@ -239,6 +385,60 @@ export interface PageInfoSubscription
   hasPreviousPage: () => Promise<AsyncIterator<Boolean>>;
   startCursor: () => Promise<AsyncIterator<String>>;
   endCursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface CarEdge {
+  node: Car;
+  cursor: String;
+}
+
+export interface CarEdgePromise extends Promise<CarEdge>, Fragmentable {
+  node: <T = CarPromise>() => T;
+  cursor: () => Promise<String>;
+}
+
+export interface CarEdgeSubscription
+  extends Promise<AsyncIterator<CarEdge>>,
+    Fragmentable {
+  node: <T = CarSubscription>() => T;
+  cursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface AggregateCar {
+  count: Int;
+}
+
+export interface AggregateCarPromise
+  extends Promise<AggregateCar>,
+    Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregateCarSubscription
+  extends Promise<AsyncIterator<AggregateCar>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
+}
+
+export interface UserConnection {
+  pageInfo: PageInfo;
+  edges: UserEdge[];
+}
+
+export interface UserConnectionPromise
+  extends Promise<UserConnection>,
+    Fragmentable {
+  pageInfo: <T = PageInfoPromise>() => T;
+  edges: <T = FragmentableArray<UserEdge>>() => T;
+  aggregate: <T = AggregateUserPromise>() => T;
+}
+
+export interface UserConnectionSubscription
+  extends Promise<AsyncIterator<UserConnection>>,
+    Fragmentable {
+  pageInfo: <T = PageInfoSubscription>() => T;
+  edges: <T = Promise<AsyncIterator<UserEdgeSubscription>>>() => T;
+  aggregate: <T = AggregateUserSubscription>() => T;
 }
 
 export interface UserEdge {
@@ -290,6 +490,50 @@ export interface BatchPayloadSubscription
   count: () => Promise<AsyncIterator<Long>>;
 }
 
+export interface CarSubscriptionPayload {
+  mutation: MutationType;
+  node: Car;
+  updatedFields: String[];
+  previousValues: CarPreviousValues;
+}
+
+export interface CarSubscriptionPayloadPromise
+  extends Promise<CarSubscriptionPayload>,
+    Fragmentable {
+  mutation: () => Promise<MutationType>;
+  node: <T = CarPromise>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = CarPreviousValuesPromise>() => T;
+}
+
+export interface CarSubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<CarSubscriptionPayload>>,
+    Fragmentable {
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = CarSubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = CarPreviousValuesSubscription>() => T;
+}
+
+export interface CarPreviousValues {
+  id: ID_Output;
+  color: String;
+}
+
+export interface CarPreviousValuesPromise
+  extends Promise<CarPreviousValues>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  color: () => Promise<String>;
+}
+
+export interface CarPreviousValuesSubscription
+  extends Promise<AsyncIterator<CarPreviousValues>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  color: () => Promise<AsyncIterator<String>>;
+}
+
 export interface UserSubscriptionPayload {
   mutation: MutationType;
   node: User;
@@ -317,21 +561,18 @@ export interface UserSubscriptionPayloadSubscription
 
 export interface UserPreviousValues {
   id: ID_Output;
-  name: String;
 }
 
 export interface UserPreviousValuesPromise
   extends Promise<UserPreviousValues>,
     Fragmentable {
   id: () => Promise<ID_Output>;
-  name: () => Promise<String>;
 }
 
 export interface UserPreviousValuesSubscription
   extends Promise<AsyncIterator<UserPreviousValues>>,
     Fragmentable {
   id: () => Promise<AsyncIterator<ID_Output>>;
-  name: () => Promise<AsyncIterator<String>>;
 }
 
 /*
@@ -364,6 +605,10 @@ export type Long = string;
 export const models: Model[] = [
   {
     name: "User",
+    embedded: false
+  },
+  {
+    name: "Car",
     embedded: false
   }
 ];

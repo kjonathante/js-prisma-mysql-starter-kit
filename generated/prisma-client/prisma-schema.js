@@ -3,7 +3,11 @@ module.exports = {
   // Please don't change this file manually but run `prisma generate` to update it.
   // For more information, please read the docs: https://www.prisma.io/docs/prisma-client/
 
-/* GraphQL */ `type AggregateUser {
+/* GraphQL */ `type AggregateCar {
+  count: Int!
+}
+
+type AggregateUser {
   count: Int!
 }
 
@@ -11,12 +15,146 @@ type BatchPayload {
   count: Long!
 }
 
+type Car {
+  id: ID!
+  owner: User!
+  color: String!
+}
+
+type CarConnection {
+  pageInfo: PageInfo!
+  edges: [CarEdge]!
+  aggregate: AggregateCar!
+}
+
+input CarCreateInput {
+  owner: UserCreateOneWithoutCarInput!
+  color: String!
+}
+
+input CarCreateOneWithoutOwnerInput {
+  create: CarCreateWithoutOwnerInput
+  connect: CarWhereUniqueInput
+}
+
+input CarCreateWithoutOwnerInput {
+  color: String!
+}
+
+type CarEdge {
+  node: Car!
+  cursor: String!
+}
+
+enum CarOrderByInput {
+  id_ASC
+  id_DESC
+  color_ASC
+  color_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+}
+
+type CarPreviousValues {
+  id: ID!
+  color: String!
+}
+
+type CarSubscriptionPayload {
+  mutation: MutationType!
+  node: Car
+  updatedFields: [String!]
+  previousValues: CarPreviousValues
+}
+
+input CarSubscriptionWhereInput {
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: CarWhereInput
+  AND: [CarSubscriptionWhereInput!]
+  OR: [CarSubscriptionWhereInput!]
+  NOT: [CarSubscriptionWhereInput!]
+}
+
+input CarUpdateInput {
+  owner: UserUpdateOneRequiredWithoutCarInput
+  color: String
+}
+
+input CarUpdateManyMutationInput {
+  color: String
+}
+
+input CarUpdateOneRequiredWithoutOwnerInput {
+  create: CarCreateWithoutOwnerInput
+  update: CarUpdateWithoutOwnerDataInput
+  upsert: CarUpsertWithoutOwnerInput
+  connect: CarWhereUniqueInput
+}
+
+input CarUpdateWithoutOwnerDataInput {
+  color: String
+}
+
+input CarUpsertWithoutOwnerInput {
+  update: CarUpdateWithoutOwnerDataInput!
+  create: CarCreateWithoutOwnerInput!
+}
+
+input CarWhereInput {
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  owner: UserWhereInput
+  color: String
+  color_not: String
+  color_in: [String!]
+  color_not_in: [String!]
+  color_lt: String
+  color_lte: String
+  color_gt: String
+  color_gte: String
+  color_contains: String
+  color_not_contains: String
+  color_starts_with: String
+  color_not_starts_with: String
+  color_ends_with: String
+  color_not_ends_with: String
+  AND: [CarWhereInput!]
+  OR: [CarWhereInput!]
+  NOT: [CarWhereInput!]
+}
+
+input CarWhereUniqueInput {
+  id: ID
+}
+
 scalar Long
 
 type Mutation {
+  createCar(data: CarCreateInput!): Car!
+  updateCar(data: CarUpdateInput!, where: CarWhereUniqueInput!): Car
+  updateManyCars(data: CarUpdateManyMutationInput!, where: CarWhereInput): BatchPayload!
+  upsertCar(where: CarWhereUniqueInput!, create: CarCreateInput!, update: CarUpdateInput!): Car!
+  deleteCar(where: CarWhereUniqueInput!): Car
+  deleteManyCars(where: CarWhereInput): BatchPayload!
   createUser(data: UserCreateInput!): User!
   updateUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User
-  updateManyUsers(data: UserUpdateManyMutationInput!, where: UserWhereInput): BatchPayload!
   upsertUser(where: UserWhereUniqueInput!, create: UserCreateInput!, update: UserUpdateInput!): User!
   deleteUser(where: UserWhereUniqueInput!): User
   deleteManyUsers(where: UserWhereInput): BatchPayload!
@@ -40,6 +178,9 @@ type PageInfo {
 }
 
 type Query {
+  car(where: CarWhereUniqueInput!): Car
+  cars(where: CarWhereInput, orderBy: CarOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Car]!
+  carsConnection(where: CarWhereInput, orderBy: CarOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): CarConnection!
   user(where: UserWhereUniqueInput!): User
   users(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [User]!
   usersConnection(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserConnection!
@@ -47,12 +188,13 @@ type Query {
 }
 
 type Subscription {
+  car(where: CarSubscriptionWhereInput): CarSubscriptionPayload
   user(where: UserSubscriptionWhereInput): UserSubscriptionPayload
 }
 
 type User {
   id: ID!
-  name: String!
+  car: Car!
 }
 
 type UserConnection {
@@ -62,7 +204,11 @@ type UserConnection {
 }
 
 input UserCreateInput {
-  name: String!
+  car: CarCreateOneWithoutOwnerInput!
+}
+
+input UserCreateOneWithoutCarInput {
+  connect: UserWhereUniqueInput
 }
 
 type UserEdge {
@@ -73,8 +219,6 @@ type UserEdge {
 enum UserOrderByInput {
   id_ASC
   id_DESC
-  name_ASC
-  name_DESC
   createdAt_ASC
   createdAt_DESC
   updatedAt_ASC
@@ -83,7 +227,6 @@ enum UserOrderByInput {
 
 type UserPreviousValues {
   id: ID!
-  name: String!
 }
 
 type UserSubscriptionPayload {
@@ -105,11 +248,11 @@ input UserSubscriptionWhereInput {
 }
 
 input UserUpdateInput {
-  name: String
+  car: CarUpdateOneRequiredWithoutOwnerInput
 }
 
-input UserUpdateManyMutationInput {
-  name: String
+input UserUpdateOneRequiredWithoutCarInput {
+  connect: UserWhereUniqueInput
 }
 
 input UserWhereInput {
@@ -127,20 +270,7 @@ input UserWhereInput {
   id_not_starts_with: ID
   id_ends_with: ID
   id_not_ends_with: ID
-  name: String
-  name_not: String
-  name_in: [String!]
-  name_not_in: [String!]
-  name_lt: String
-  name_lte: String
-  name_gt: String
-  name_gte: String
-  name_contains: String
-  name_not_contains: String
-  name_starts_with: String
-  name_not_starts_with: String
-  name_ends_with: String
-  name_not_ends_with: String
+  car: CarWhereInput
   AND: [UserWhereInput!]
   OR: [UserWhereInput!]
   NOT: [UserWhereInput!]

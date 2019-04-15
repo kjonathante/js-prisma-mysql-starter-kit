@@ -1,19 +1,5 @@
-# Javascript - Prisma as a data access layer to mysql - starter kit
+# One to One Required Relation
 
-docker-compose up -d
+Nodes for a type that contains a required to-one relation field can only be created using a nested mutation to ensure the respective field will not be null.
 
-prisma init --endpoint http://localhost:4466
-
-prisma deploy
-  http://localhost:4466/_admin.
-
-
-  generate:
-    - generator: javascript-client
-      output: ./generated/prisma-client/
-
-prisma generate
-
-npm init -y
-npm install --save prisma-client-lib
-
+Note that a to-many relation field is always set to required. 

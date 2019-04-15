@@ -3,29 +3,45 @@ const { prisma } = require('./generated/prisma-client')
 // A `main` function so that we can use async/await
 async function main() {
 
-  // Create a new user called `Alice`
-  const newUser = await prisma.createUser({ name: 'Alice' })
-  console.log(`Created new user: ${newUser.name} (ID: ${newUser.id})`)
+  //Error: The change you are trying to make would violate the 
+  // required relation 'CarToUser' between Car and User
+  //await prisma.deleteManyUsers()
 
-  // Read all users from the database and print them to the console
-  const allUsers = await prisma.users()
-  console.log(allUsers)
+  const users = await prisma.users()
+  users.forEach( async (user) => {
+    const deletedUser = await prisma.deleteUser( {id: user.id} )
+    console.log(`Deleted User `, deletedUser)
+  })
+
+  /*
+  Nodes for a type that contains a required to-one relation 
+  field can only be created using a nested mutation to ensure 
+  the respective field will not be null.
+
+  these will not work:
+  const user1 = await prisma.createUser({})
+  const user1 = await prisma.createUser({})
+  */
+  const user1 = await prisma.createUser({
+    car: {
+      create: {
+        color: 'Red'
+      }      
+    }
+  })
+  console.log(user1)
+
+  const user2 = await prisma.createUser({
+    car: {
+      create: {
+        color: 'Blue'
+      }      
+    }
+  })
+  console.log(user2)
+
+  await prisma.deleteUser({id: user2.id}) // this will work if onDelete: CASCADE is set on the User type
+
 }
 
 main().catch(e => console.error(e))
-
-/*
-// Fetch single user
-const user = await prisma.user({ id: '__USER_ID__' })
-// Filter user list
-const usersCalledAlice = await prisma.users({
-  where: { name: 'Alice' }
-})
-// Update a user's name
-const updatedUser = await prisma.updateUser({
-  where: { id: '__USER_ID__' },
-  data: { name: 'Bob' }
-})
-// Delete user
-const deletedUser = await prisma.deleteUser({ id: '__USER_ID__' })
-*/

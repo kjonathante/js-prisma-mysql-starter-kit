@@ -1,4 +1,10 @@
 type User {
   id: ID! @unique
-  name: String!
+  car: Car! @relation(name: "CarToUser", onDelete: CASCADE)
+}
+
+type Car {
+  id: ID! @unique
+  owner: User! @relation(name: "CarToUser")
+  color: String!
 }
