@@ -2,14 +2,38 @@ const { prisma } = require('./generated/prisma-client')
 
 // A `main` function so that we can use async/await
 async function main() {
+  await prisma.deleteManyUsers(); // as of 2019-04-14 deleteMany will not do cascading delete
+  await prisma.deleteManyProfiles();
 
-  // Create a new user called `Alice`
-  const newUser = await prisma.createUser({ name: 'Alice' })
-  console.log(`Created new user: ${newUser.name} (ID: ${newUser.id})`)
+  const user1 = await prisma.createUser({})
+  console.log(`Created user2 ${user1.id}`, user1)
 
-  // Read all users from the database and print them to the console
-  const allUsers = await prisma.users()
-  console.log(allUsers)
+  const user2 = await prisma.createUser(
+    {
+      profile: {
+        create: {
+          lastName: 'Snow',
+          firstName: 'White'
+        }
+      }
+    }
+  )
+  console.log(`Created user2 ${user2.id}`, user2)
+
+  const user3 = await prisma.createUser(
+    {
+      profile: {
+        create: {
+          lastName: 'ToBe',
+          firstName: 'Deleted'
+        }
+      }
+    }
+  )
+  console.log(`Created user3 ${user3.id}`, user3)
+
+  // on delete cascade
+  await prisma.deleteUser({id: user3.id}) // cascading delete works on this
 }
 
 main().catch(e => console.error(e))

@@ -1,4 +1,14 @@
 type User {
   id: ID! @unique
-  name: String!
+  admin: Boolean @default(value: false)
+  # 1 to 1 with Profile
+  profile: Profile @relation(name: "UserProfile", onDelete: CASCADE)
+}
+
+type Profile {
+  id: ID! @unique
+  firstName: String!
+  lastName: String!
+  # 1 to 1 with User
+  user: User @relation(name: "UserProfile", onDelete: SET_NULL)
 }
