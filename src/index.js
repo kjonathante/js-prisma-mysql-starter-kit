@@ -1,5 +1,55 @@
 const { prisma } = require('./generated/prisma-client')
+const { ApolloServer, gql, PubSub } = require('apollo-server');
 
+const pubsub = new PubSub();
+
+// The GraphQL schema
+const typeDefs = gql`
+  type Query {
+    hello: String
+  }
+  type Subscription {
+    hi: String
+  }
+`;
+
+// A map of functions which return data for the schema.
+const resolvers = {
+  Subscription: {
+    hi: {
+      // Additional event labels can be passed to asyncIterator creation
+      subscribe: () => pubsub.asyncIterator('SOMETHING'),
+    },
+  },
+  Query: {
+    hello: () => {
+      pubsub.publish('SOMETHING', { hi: 'world' });
+      return 'world'
+    }
+  }
+};
+
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+  context: async ({ req, connection }) => {
+    if (connection) {
+      // check connection for metadata
+      return connection.context;
+    } else {
+      // check from req
+      const token = req.headers.authorization || "";
+
+      return { token };
+    }
+  },
+});
+
+server.listen().then(({ url, subscriptionsUrl }) => {
+  console.log(`🚀 Server ready at ${url}`);
+  console.log(`🚀 Subscriptions ready at ${subscriptionsUrl}`);
+});
+/*
 // A `main` function so that we can use async/await
 async function main() {
   await prisma.deleteManyUsers();
@@ -36,7 +86,7 @@ async function main() {
 }
 
 main().catch(e => console.error(e))
-
+*/
 /*
 // Fetch single user
 const user = await prisma.user({ id: '__USER_ID__' })
