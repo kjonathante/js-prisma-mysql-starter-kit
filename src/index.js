@@ -1,7 +1,9 @@
 const { prisma } = require('./generated/prisma-client')
 const { ApolloServer, gql, PubSub } = require('apollo-server');
-
 const pubsub = new PubSub();
+
+const Query = require('./resolvers/Query')
+const Subscription = require('./resolvers/Subscription')
 
 // The GraphQL schema
 const typeDefs = gql`
@@ -15,34 +17,38 @@ const typeDefs = gql`
 
 // A map of functions which return data for the schema.
 const resolvers = {
-  Subscription: {
-    hi: {
-      // Additional event labels can be passed to asyncIterator creation
-      subscribe: () => pubsub.asyncIterator('SOMETHING'),
-    },
-  },
-  Query: {
-    hello: () => {
-      pubsub.publish('SOMETHING', { hi: 'world' });
-      return 'world'
-    }
-  }
+  Subscription,
+  Query
 };
 
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context: async ({ req, connection }) => {
+  context: async({req, connection}) => {
     if (connection) {
       // check connection for metadata
-      return connection.context;
+      // return connection.context;
+      return Object.assign(
+        {
+          pubsub
+        },
+        connection.context
+      )
     } else {
       // check from req
       const token = req.headers.authorization || "";
-
-      return { token };
+      return { token, pubsub };
     }
   },
+  subscriptions: {
+    onConnect: (connectionParams, webSocket, context) => {
+      // console.log('from onConnect')
+      // return { hello: 'world' }
+    },
+    onDisconnect: (webSocket, context) => {
+      // console.log('from onDisconnect')
+    }
+  }
 });
 
 server.listen().then(({ url, subscriptionsUrl }) => {
