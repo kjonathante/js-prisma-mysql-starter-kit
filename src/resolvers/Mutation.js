@@ -23,5 +23,9 @@ module.exports = {
     return context.prisma.createUser(
       { name: args.name },
     )
+  },
+  hello(root, args, context) {
+    context.pubsub.publish('SOMETHING', { hi: 'world' });
+    return 'world'
   }
 }

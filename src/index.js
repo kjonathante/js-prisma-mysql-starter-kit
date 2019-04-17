@@ -5,24 +5,15 @@ const pubsub = new PubSub();
 
 const Query = require('./resolvers/Query')
 const Mutation = require('./resolvers/Mutation')
+const Subscription = require('./resolvers/Subscription')
 const Post = require('./resolvers/Post')
 const User = require('./resolvers/User')
-//const Subscription = require('./resolvers/Subscription')
-
-// The GraphQL schema
-// const typeDefs = gql`
-//   type Query {
-//     hello: String
-//   }
-//   type Subscription {
-//     hi: String
-//   }
-// `;
 
 // A map of functions which return data for the schema.
 const resolvers = {
   Query,
   Mutation,
+  Subscription,
   Post,
   User
 };
