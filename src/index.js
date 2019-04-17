@@ -1,5 +1,6 @@
 const { prisma } = require('./generated/prisma-client')
-const { ApolloServer, gql, PubSub } = require('apollo-server');
+const { ApolloServer, PubSub } = require('apollo-server');
+const { importSchema } = require('graphql-import')
 const pubsub = new PubSub();
 
 const Query = require('./resolvers/Query')
@@ -17,33 +18,6 @@ const User = require('./resolvers/User')
 //     hi: String
 //   }
 // `;
-const typeDefs = gql`
-type Query {
-  publishedPosts: [Post!]!
-  post(postId: ID!): Post
-  postsByUser(userId: ID!): [Post!]!
-}
-
-type Mutation {
-  createUser(name: String!): User
-  createDraft(title: String!, userId: ID!): Post
-  publish(postId: ID!): Post
-}
-
-type User {
-  id: ID!
-  email: String
-  name: String!
-  posts: [Post!]!
-}
-
-type Post {
-  id: ID!
-  title: String!
-  published: Boolean!
-  author: User
-}
-`
 
 // A map of functions which return data for the schema.
 const resolvers = {
@@ -54,7 +28,7 @@ const resolvers = {
 };
 
 const server = new ApolloServer({
-  typeDefs,
+  typeDefs: importSchema('./src/schema.graphql'),
   resolvers,
   context: async({req, connection}) => {
     if (connection) {
