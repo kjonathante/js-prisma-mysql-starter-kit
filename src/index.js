@@ -3,22 +3,54 @@ const { ApolloServer, gql, PubSub } = require('apollo-server');
 const pubsub = new PubSub();
 
 const Query = require('./resolvers/Query')
-const Subscription = require('./resolvers/Subscription')
+const Mutation = require('./resolvers/Mutation')
+const Post = require('./resolvers/Post')
+const User = require('./resolvers/User')
+//const Subscription = require('./resolvers/Subscription')
 
 // The GraphQL schema
+// const typeDefs = gql`
+//   type Query {
+//     hello: String
+//   }
+//   type Subscription {
+//     hi: String
+//   }
+// `;
 const typeDefs = gql`
-  type Query {
-    hello: String
-  }
-  type Subscription {
-    hi: String
-  }
-`;
+type Query {
+  publishedPosts: [Post!]!
+  post(postId: ID!): Post
+  postsByUser(userId: ID!): [Post!]!
+}
+
+type Mutation {
+  createUser(name: String!): User
+  createDraft(title: String!, userId: ID!): Post
+  publish(postId: ID!): Post
+}
+
+type User {
+  id: ID!
+  email: String
+  name: String!
+  posts: [Post!]!
+}
+
+type Post {
+  id: ID!
+  title: String!
+  published: Boolean!
+  author: User
+}
+`
 
 // A map of functions which return data for the schema.
 const resolvers = {
-  Subscription,
-  Query
+  Query,
+  Mutation,
+  Post,
+  User
 };
 
 const server = new ApolloServer({
@@ -37,7 +69,7 @@ const server = new ApolloServer({
     } else {
       // check from req
       const token = req.headers.authorization || "";
-      return { token, pubsub };
+      return { token, pubsub, prisma };
     }
   },
   subscriptions: {
